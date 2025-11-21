@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2024-11-21T00:00:00Z</date>
+    <groups>
+        <group>
+            <name>Templates/Mining</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template ASIC Miner</template>
+            <name>Template ASIC Miner</name>
+            <description>Template for monitoring ASIC miners via API (Antminer S19k Pro, Vnish firmware)</description>
+            <groups>
+                <group>
+                    <name>Templates/Mining</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Miner</name>
+                </application>
+                <application>
+                    <name>Miner Chains</name>
+                </application>
+                <application>
+                    <name>Miner Cooling</name>
+                </application>
+                <application>
+                    <name>Miner Errors</name>
+                </application>
+                <application>
+                    <name>Miner Performance</name>
+                </application>
+                <application>
+                    <name>Miner Pools</name>
+                </application>
+                <application>
+                    <name>Miner Power</name>
+                </application>
+                <application>
+                    <name>Miner Temperature</name>
+                </application>
+            </applications>
+            <items>
+                <!-- Hashrate Items -->
+                <item>
+                    <name>Miner Average Hashrate</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},hashrate.average]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>FLOAT</value_type>
+                    <units>TH/s</units>
+                    <applications>
+                        <application>
+                            <name>Miner Performance</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Miner Instant Hashrate</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},hashrate.instant]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>FLOAT</value_type>
+                    <units>TH/s</units>
+                    <applications>
+                        <application>
+                            <name>Miner Performance</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Miner Nominal Hashrate</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},hashrate.nominal]</key>
+                    <delay>300s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>FLOAT</value_type>
+                    <units>TH/s</units>
+                    <applications>
+                        <application>
+                            <name>Miner Performance</name>
+                        </application>
+                    </applications>
+                </item>
+                <!-- Power Items -->
+                <item>
+                    <name>Miner Power Consumption</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},power.consumption]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <units>W</units>
+                    <applications>
+                        <application>
+                            <name>Miner Power</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Miner Power Efficiency</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},power.efficiency]</key>
+                    <delay>300s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>FLOAT</value_type>
+                    <units>W/TH</units>
+                    <applications>
+                        <application>
+                            <name>Miner Power</name>
+                        </application>
+                    </applications>
+                </item>
+                <!-- Temperature Items -->
+                <item>
+                    <name>Miner PCB Temperature Min</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},temp.pcb.min]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <units>°C</units>
+                    <applications>
+                        <application>
+                            <name>Miner Temperature</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Miner PCB Temperature Max</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},temp.pcb.max]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <units>°C</units>
+                    <applications>
+                        <application>
+                            <name>Miner Temperature</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Miner Chip Temperature Min</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},temp.chip.min]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <units>°C</units>
+                    <applications>
+                        <application>
+                            <name>Miner Temperature</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Miner Chip Temperature Max</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},temp.chip.max]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <units>°C</units>
+                    <applications>
+                        <application>
+                            <name>Miner Temperature</name>
+                        </application>
+                    </applications>
+                </item>
+                <!-- Error Items -->
+                <item>
+                    <name>Miner Hardware Errors</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},errors.hardware]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <applications>
+                        <application>
+                            <name>Miner Errors</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Miner Hardware Errors Percent</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},errors.hardware.percent]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <applications>
+                        <application>
+                            <name>Miner Errors</name>
+                        </application>
+                    </applications>
+                </item>
+                <!-- Status Items -->
+                <item>
+                    <name>Miner Status</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},status]</key>
+                    <delay>30s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <valuemap>
+                        <name>Miner Status</name>
+                    </valuemap>
+                    <applications>
+                        <application>
+                            <name>Miner</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Miner Uptime</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},uptime]</key>
+                    <delay>300s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <units>s</units>
+                    <applications>
+                        <application>
+                            <name>Miner</name>
+                        </application>
+                    </applications>
+                </item>
+                <!-- Pool Items -->
+                <item>
+                    <name>Pool Accepted Shares</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},pool.accepted]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <applications>
+                        <application>
+                            <name>Miner Pools</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Pool Rejected Shares</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},pool.rejected]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <applications>
+                        <application>
+                            <name>Miner Pools</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Pool Stale Shares</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},pool.stale]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <applications>
+                        <application>
+                            <name>Miner Pools</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Pool Active Count</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},pool.active]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <applications>
+                        <application>
+                            <name>Miner Pools</name>
+                        </application>
+                    </applications>
+                </item>
+                <!-- Cooling Items -->
+                <item>
+                    <name>Fan Duty Cycle</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},fan.duty]</key>
+                    <delay>60s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <units>%</units>
+                    <applications>
+                        <application>
+                            <name>Miner Cooling</name>
+                        </application>
+                    </applications>
+                </item>
+                <!-- Chain Items -->
+                <item>
+                    <name>Chain Count</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},chain.count]</key>
+                    <delay>3600s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <applications>
+                        <application>
+                            <name>Miner Chains</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Chip Status Red</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},chain.chips.red]</key>
+                    <delay>300s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <applications>
+                        <application>
+                            <name>Miner Errors</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Chip Status Orange</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},chain.chips.orange]</key>
+                    <delay>300s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <applications>
+                        <application>
+                            <name>Miner Errors</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>DevFee Percent</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},devfee.percent]</key>
+                    <delay>3600s</delay>
+                    <history>7d</history>
+                    <trends>90d</trends>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <applications>
+                        <application>
+                            <name>Miner</name>
+                        </application>
+                    </applications>
+                </item>
+            </items>
+            <discovery_rules>
+                <!-- Fan Discovery -->
+                <discovery_rule>
+                    <name>Fan Discovery</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},discovery.fans]</key>
+                    <delay>3600s</delay>
+                    <lifetime>7d</lifetime>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Fan {#FAN_ID} RPM</name>
+                            <type>EXTERNAL</type>
+                            <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},fan.{#FAN_ID}.rpm]</key>
+                            <delay>60s</delay>
+                            <history>7d</history>
+                            <trends>90d</trends>
+                            <value_type>UNSIGNED</value_type>
+                            <units>RPM</units>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Miner Cooling</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>{Template ASIC Miner:miner_monitor.py[{HOST.IP},{$MINER.API.KEY},fan.{#FAN_ID}.rpm].last()}=0</expression>
+                            <name>Fan {#FAN_ID} is not running</name>
+                            <priority>WARNING</priority>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Template ASIC Miner:miner_monitor.py[{HOST.IP},{$MINER.API.KEY},fan.{#FAN_ID}.rpm].last()}&lt;{$MINER.FAN.MIN.RPM}</expression>
+                            <name>Fan {#FAN_ID} RPM is too low</name>
+                            <priority>WARNING</priority>
+                        </trigger_prototype>
+                    </trigger_prototypes>
+                </discovery_rule>
+                <!-- Chain Discovery -->
+                <discovery_rule>
+                    <name>Chain Discovery</name>
+                    <type>EXTERNAL</type>
+                    <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},discovery.chains]</key>
+                    <delay>3600s</delay>
+                    <lifetime>7d</lifetime>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Chain {#CHAIN_ID} Hashrate</name>
+                            <type>EXTERNAL</type>
+                            <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},chain.{#CHAIN_ID}.hashrate]</key>
+                            <delay>60s</delay>
+                            <history>7d</history>
+                            <trends>90d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>GH/s</units>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Miner Chains</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Chain {#CHAIN_ID} Chip Temperature Max</name>
+                            <type>EXTERNAL</type>
+                            <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},chain.{#CHAIN_ID}.temp.chip.max]</key>
+                            <delay>60s</delay>
+                            <history>7d</history>
+                            <trends>90d</trends>
+                            <value_type>UNSIGNED</value_type>
+                            <units>°C</units>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Miner Chains</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Chain {#CHAIN_ID} Power Consumption</name>
+                            <type>EXTERNAL</type>
+                            <key>miner_monitor.py[{HOST.IP},{$MINER.API.KEY},chain.{#CHAIN_ID}.power]</key>
+                            <delay>300s</delay>
+                            <history>7d</history>
+                            <trends>90d</trends>
+                            <value_type>UNSIGNED</value_type>
+                            <units>W</units>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Miner Chains</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>{Template ASIC Miner:miner_monitor.py[{HOST.IP},{$MINER.API.KEY},chain.{#CHAIN_ID}.hashrate].last()}=0</expression>
+                            <name>Chain {#CHAIN_ID} is not hashing</name>
+                            <priority>HIGH</priority>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Template ASIC Miner:miner_monitor.py[{HOST.IP},{$MINER.API.KEY},chain.{#CHAIN_ID}.temp.chip.max].last()}&gt;{$MINER.TEMP.CHIP.MAX}</expression>
+                            <name>Chain {#CHAIN_ID} chip temperature is too high</name>
+                            <priority>WARNING</priority>
+                        </trigger_prototype>
+                    </trigger_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$MINER.API.KEY}</macro>
+                    <value>your_api_key_here</value>
+                    <description>API key for miner authentication</description>
+                </macro>
+                <macro>
+                    <macro>{$MINER.FAN.MIN.RPM}</macro>
+                    <value>2000</value>
+                    <description>Minimum fan RPM threshold</description>
+                </macro>
+                <macro>
+                    <macro>{$MINER.HASHRATE.MIN}</macro>
+                    <value>70</value>
+                    <description>Minimum acceptable hashrate in TH/s</description>
+                </macro>
+                <macro>
+                    <macro>{$MINER.HW.ERROR.MAX}</macro>
+                    <value>100</value>
+                    <description>Maximum hardware errors threshold</description>
+                </macro>
+                <macro>
+                    <macro>{$MINER.TEMP.CHIP.MAX}</macro>
+                    <value>75</value>
+                    <description>Maximum chip temperature in Celsius</description>
+                </macro>
+                <macro>
+                    <macro>{$MINER.TEMP.CHIP.WARN}</macro>
+                    <value>70</value>
+                    <description>Warning chip temperature in Celsius</description>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+    <triggers>
+        <trigger>
+            <expression>{Template ASIC Miner:miner_monitor.py[{HOST.IP},{$MINER.API.KEY},status].last()}=0</expression>
+            <name>Miner is down</name>
+            <priority>HIGH</priority>
+            <description>The miner is not in mining state</description>
+        </trigger>
+        <trigger>
+            <expression>{Template ASIC Miner:miner_monitor.py[{HOST.IP},{$MINER.API.KEY},temp.chip.max].last()}&gt;{$MINER.TEMP.CHIP.MAX}</expression>
+            <name>Miner chip temperature is too high</name>
+            <priority>HIGH</priority>
+            <description>Maximum chip temperature exceeded {$MINER.TEMP.CHIP.MAX}°C</description>
+        </trigger>
+        <trigger>
+            <expression>{Template ASIC Miner:miner_monitor.py[{HOST.IP},{$MINER.API.KEY},temp.chip.max].last()}&gt;{$MINER.TEMP.CHIP.WARN}</expression>
+            <name>Miner chip temperature is high</name>
+            <priority>WARNING</priority>
+            <description>Chip temperature exceeded warning threshold {$MINER.TEMP.CHIP.WARN}°C</description>
+        </trigger>
+        <trigger>
+            <expression>{Template ASIC Miner:miner_monitor.py[{HOST.IP},{$MINER.API.KEY},hashrate.average].last()}&lt;{$MINER.HASHRATE.MIN}</expression>
+            <name>Miner hashrate is too low</name>
+            <priority>WARNING</priority>
+            <description>Average hashrate is below {$MINER.HASHRATE.MIN} TH/s</description>
+        </trigger>
+        <trigger>
+            <expression>{Template ASIC Miner:miner_monitor.py[{HOST.IP},{$MINER.API.KEY},errors.hardware].last()}&gt;{$MINER.HW.ERROR.MAX}</expression>
+            <name>Miner has too many hardware errors</name>
+            <priority>WARNING</priority>
+            <description>Hardware errors exceeded {$MINER.HW.ERROR.MAX}</description>
+        </trigger>
+        <trigger>
+            <expression>{Template ASIC Miner:miner_monitor.py[{HOST.IP},{$MINER.API.KEY},chain.chips.red].last()}&gt;0</expression>
+            <name>Miner has failed chips (red status)</name>
+            <priority>AVERAGE</priority>
+            <description>One or more chips have failed (red status)</description>
+        </trigger>
+        <trigger>
+            <expression>{Template ASIC Miner:miner_monitor.py[{HOST.IP},{$MINER.API.KEY},pool.active].last()}=0</expression>
+            <name>No active mining pool</name>
+            <priority>HIGH</priority>
+            <description>No mining pools are currently active</description>
+        </trigger>
+    </triggers>
+    <value_maps>
+        <value_map>
+            <name>Miner Status</name>
+            <mappings>
+                <mapping>
+                    <value>0</value>
+                    <newvalue>Down</newvalue>
+                </mapping>
+                <mapping>
+                    <value>1</value>
+                    <newvalue>Mining</newvalue>
+                </mapping>
+            </mappings>
+        </value_map>
+    </value_maps>
+</zabbix_export>
