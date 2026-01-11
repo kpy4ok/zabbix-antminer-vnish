@@ -1,164 +1,146 @@
-import requests
+#!/usr/bin/env python3
+"""
+Zabbix 5 External Script for ASIC Miner Monitoring
+Place this script in: /usr/lib/zabbix/externalscripts/
+Make executable: chmod +x miner_monitor.py
+
+Usage: miner_monitor.py <host> <api_key> <metric>
+Example: miner_monitor.py 172.16.58.104 your_api_key hashrate.average
+"""
+
+import sys
 import json
-import os
-from datetime import datetime
+import requests
 from typing import Dict, Any, Optional
 
-class MinerAPI:
-    def __init__(self, base_url: str = "http://172.16.58.104", api_key: Optional[str] = None):
-        self.base_url = base_url
-        self.api_key = api_key or os.environ.get('MINER_API_KEY')
-        self.headers = {
-            'accept': 'application/json'
-        }
+class MinerMonitor:
+    def __init__(self, host: str, api_key: Optional[str] = None):
+        self.base_url = f"http://{host}"
+        self.headers = {'accept': 'application/json'}
         
-        # Add API key to headers if provided
-        if self.api_key:
-            self.headers['Authorization'] = f'Bearer {self.api_key}'
-            # Alternative formats (uncomment the one that matches your API):
-            # self.headers['X-API-Key'] = self.api_key
-            # self.headers['api-key'] = self.api_key
-    
-    def check_auth(self) -> Dict[str, Any]:
-        """Check authentication status"""
-        try:
-            response = requests.get(
-                f"{self.base_url}/api/v1/auth-check",
-                headers=self.headers,
-                timeout=10
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            print(f"Error checking auth: {e}")
-            return {}
+        if api_key and api_key != 'none':
+            self.headers['Authorization'] = f'Bearer {api_key}'
+        
+        self.timeout = 10
     
     def get_summary(self) -> Dict[str, Any]:
-        """Get miner summary statistics"""
+        """Fetch miner summary data"""
         try:
             response = requests.get(
                 f"{self.base_url}/api/v1/summary",
                 headers=self.headers,
-                timeout=10
+                timeout=self.timeout
             )
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.RequestException as e:
-            print(f"Error getting summary: {e}")
-            return {}
+        except Exception as e:
+            print(f"0")
+            sys.exit(1)
     
-    def parse_miner_stats(self, data: Dict[str, Any]) -> None:
-        """Parse and display miner statistics"""
+    def get_metric(self, metric: str) -> Any:
+        """Extract specific metric from miner data"""
+        data = self.get_summary()
+        
         if not data or 'miner' not in data:
-            print("No miner data available")
-            return
+            return 0
         
         miner = data['miner']
         
-        print("=" * 60)
-        print(f"MINER STATISTICS - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print("=" * 60)
+        # Metric mapping
+        metrics = {
+            # Hashrate metrics
+            'hashrate.average': lambda: miner.get('average_hashrate', 0),
+            'hashrate.instant': lambda: miner.get('instant_hashrate', 0),
+            'hashrate.nominal': lambda: miner.get('hr_nominal', 0),
+            'hashrate.realtime': lambda: miner.get('hr_realtime', 0),
+            
+            # Power metrics
+            'power.consumption': lambda: miner.get('power_consumption', 0),
+            'power.efficiency': lambda: miner.get('power_efficiency', 0),
+            
+            # Temperature metrics
+            'temp.pcb.min': lambda: miner.get('pcb_temp', {}).get('min', 0),
+            'temp.pcb.max': lambda: miner.get('pcb_temp', {}).get('max', 0),
+            'temp.chip.min': lambda: miner.get('chip_temp', {}).get('min', 0),
+            'temp.chip.max': lambda: miner.get('chip_temp', {}).get('max', 0),
+            
+            # Error metrics
+            'errors.hardware': lambda: miner.get('hw_errors', 0),
+            'errors.hardware.percent': lambda: miner.get('hw_errors_percent', 0),
+            'errors.hashrate': lambda: miner.get('hr_error', 0),
+            
+            # Status metrics
+            'status': lambda: 1 if miner.get('miner_status', {}).get('miner_state') == 'mining' else 0,
+            'uptime': lambda: miner.get('miner_status', {}).get('miner_state_time', 0),
+            
+            # Pool metrics
+            'pool.accepted': lambda: sum(p.get('accepted', 0) for p in miner.get('pools', []) if p.get('pool_type') == 'UserPool'),
+            'pool.rejected': lambda: sum(p.get('rejected', 0) for p in miner.get('pools', []) if p.get('pool_type') == 'UserPool'),
+            'pool.stale': lambda: sum(p.get('stale', 0) for p in miner.get('pools', []) if p.get('pool_type') == 'UserPool'),
+            'pool.active': lambda: sum(1 for p in miner.get('pools', []) if p.get('status') == 'active' and p.get('pool_type') == 'UserPool'),
+            
+            # Cooling metrics
+            'fan.duty': lambda: miner.get('cooling', {}).get('fan_duty', 0),
+            'fan.0.rpm': lambda: next((f.get('rpm', 0) for f in miner.get('cooling', {}).get('fans', []) if f.get('id') == 0), 0),
+            'fan.1.rpm': lambda: next((f.get('rpm', 0) for f in miner.get('cooling', {}).get('fans', []) if f.get('id') == 1), 0),
+            'fan.2.rpm': lambda: next((f.get('rpm', 0) for f in miner.get('cooling', {}).get('fans', []) if f.get('id') == 2), 0),
+            'fan.3.rpm': lambda: next((f.get('rpm', 0) for f in miner.get('cooling', {}).get('fans', []) if f.get('id') == 3), 0),
+            
+            # Chain metrics
+            'chain.count': lambda: len(miner.get('chains', [])),
+            'chain.1.hashrate': lambda: next((c.get('hashrate_rt', 0) for c in miner.get('chains', []) if c.get('id') == 1), 0),
+            'chain.2.hashrate': lambda: next((c.get('hashrate_rt', 0) for c in miner.get('chains', []) if c.get('id') == 2), 0),
+            'chain.3.hashrate': lambda: next((c.get('hashrate_rt', 0) for c in miner.get('chains', []) if c.get('id') == 3), 0),
+            'chain.1.temp.chip.max': lambda: next((c.get('chip_temp', {}).get('max', 0) for c in miner.get('chains', []) if c.get('id') == 1), 0),
+            'chain.2.temp.chip.max': lambda: next((c.get('chip_temp', {}).get('max', 0) for c in miner.get('chains', []) if c.get('id') == 2), 0),
+            'chain.3.temp.chip.max': lambda: next((c.get('chip_temp', {}).get('max', 0) for c in miner.get('chains', []) if c.get('id') == 3), 0),
+            'chain.1.power': lambda: next((c.get('power_consumption', 0) for c in miner.get('chains', []) if c.get('id') == 1), 0),
+            'chain.2.power': lambda: next((c.get('power_consumption', 0) for c in miner.get('chains', []) if c.get('id') == 2), 0),
+            'chain.3.power': lambda: next((c.get('power_consumption', 0) for c in miner.get('chains', []) if c.get('id') == 3), 0),
+            'chain.chips.red': lambda: sum(c.get('chip_statuses', {}).get('red', 0) for c in miner.get('chains', [])),
+            'chain.chips.orange': lambda: sum(c.get('chip_statuses', {}).get('orange', 0) for c in miner.get('chains', [])),
+            'chain.chips.grey': lambda: sum(c.get('chip_statuses', {}).get('grey', 0) for c in miner.get('chains', [])),
+            
+            # Dev fee
+            'devfee.percent': lambda: miner.get('devfee_percent', 0),
+            
+            # Discovery
+            'discovery.fans': lambda: json.dumps({"data": [
+                {"{#FAN_ID}": str(f.get('id')), "{#FAN_NAME}": f"Fan {f.get('id')}"} 
+                for f in miner.get('cooling', {}).get('fans', [])
+            ]}),
+            'discovery.chains': lambda: json.dumps({"data": [
+                {"{#CHAIN_ID}": str(c.get('id')), "{#CHAIN_NAME}": f"Chain {c.get('id')}"} 
+                for c in miner.get('chains', [])
+            ]}),
+            'discovery.pools': lambda: json.dumps({"data": [
+                {"{#POOL_ID}": str(p.get('id')), "{#POOL_URL}": p.get('url', 'Unknown')} 
+                for p in miner.get('pools', []) if p.get('pool_type') == 'UserPool'
+            ]}),
+        }
         
-        # Basic Info
-        print(f"\n🔧 Miner Type: {miner.get('miner_type', 'N/A')}")
-        print(f"📊 Status: {miner.get('miner_status', {}).get('miner_state', 'N/A').upper()}")
-        
-        # Hashrate
-        print(f"\n⚡ HASHRATE:")
-        print(f"  • Average:  {miner.get('average_hashrate', 0):.2f} TH/s")
-        print(f"  • Instant:  {miner.get('instant_hashrate', 0):.2f} TH/s")
-        print(f"  • Nominal:  {miner.get('hr_nominal', 0):.2f} TH/s")
-        print(f"  • Realtime: {miner.get('hr_realtime', 0):.2f} GH/s")
-        
-        # Power
-        print(f"\n⚡ POWER:")
-        print(f"  • Consumption: {miner.get('power_consumption', 0)} W")
-        print(f"  • Efficiency:  {miner.get('power_efficiency', 0):.2f} W/TH")
-        
-        # Temperature
-        pcb_temp = miner.get('pcb_temp', {})
-        chip_temp = miner.get('chip_temp', {})
-        print(f"\n🌡️  TEMPERATURE:")
-        print(f"  • PCB:  {pcb_temp.get('min', 0)}°C - {pcb_temp.get('max', 0)}°C")
-        print(f"  • Chip: {chip_temp.get('min', 0)}°C - {chip_temp.get('max', 0)}°C")
-        
-        # Errors
-        print(f"\n❌ ERRORS:")
-        print(f"  • Hardware Errors: {miner.get('hw_errors', 0)} ({miner.get('hw_errors_percent', 0)}%)")
-        print(f"  • Hashrate Error:  {miner.get('hr_error', 0)}")
-        
-        # Dev Fee
-        print(f"\n💰 DEV FEE:")
-        print(f"  • Percentage: {miner.get('devfee_percent', 0):.3f}%")
-        print(f"  • Value:      {miner.get('devfee', 0):.2f}")
-        
-        # Pools
-        pools = miner.get('pools', [])
-        print(f"\n🏊 POOLS ({len(pools)}):")
-        for pool in pools:
-            status_icon = "✓" if pool.get('status') == 'active' else "○"
-            print(f"  {status_icon} [{pool.get('id')}] {pool.get('url', 'N/A')}")
-            print(f"     Status: {pool.get('status', 'N/A')} | Diff: {pool.get('diff', 'N/A')}")
-            print(f"     Accepted: {pool.get('accepted', 0)} | Rejected: {pool.get('rejected', 0)} | Stale: {pool.get('stale', 0)}")
-        
-        # Cooling
-        cooling = miner.get('cooling', {})
-        fans = cooling.get('fans', [])
-        print(f"\n🌀 COOLING:")
-        print(f"  • Fan Duty: {cooling.get('fan_duty', 0)}%")
-        print(f"  • Mode: {cooling.get('settings', {}).get('mode', {}).get('name', 'N/A')}")
-        for fan in fans:
-            print(f"  • Fan {fan.get('id')}: {fan.get('rpm', 0)} RPM ({fan.get('status', 'N/A')})")
-        
-        # Chains
-        chains = miner.get('chains', [])
-        print(f"\n⛓️  HASH CHAINS ({len(chains)}):")
-        for chain in chains:
-            print(f"  • Chain {chain.get('id')}:")
-            print(f"     Frequency: {chain.get('frequency', 0)} MHz | Voltage: {chain.get('voltage', 0)} mV")
-            print(f"     Hashrate: {chain.get('hashrate_rt', 0):.2f} GH/s ({chain.get('hashrate_percentage', 0):.2f}%)")
-            print(f"     Power: {chain.get('power_consumption', 0)} W")
-            chip_status = chain.get('chip_statuses', {})
-            print(f"     Chips: Grey={chip_status.get('grey', 0)}, Orange={chip_status.get('orange', 0)}, Red={chip_status.get('red', 0)}")
-        
-        print("\n" + "=" * 60)
+        if metric in metrics:
+            try:
+                return metrics[metric]()
+            except Exception as e:
+                return 0
+        else:
+            return 0
 
 def main():
-    # Initialize API client
-    # Option 1: Pass API key directly
-    api_key = "your_api_key_here"  # Replace with your actual API key
-    api = MinerAPI(api_key=api_key)
+    if len(sys.argv) < 4:
+        print("Usage: miner_monitor.py <host> <api_key> <metric>")
+        print("Example: miner_monitor.py 172.16.58.104 your_api_key hashrate.average")
+        sys.exit(1)
     
-    # Option 2: Use environment variable (more secure)
-    # Set environment variable: export MINER_API_KEY=your_api_key_here
-    # api = MinerAPI()
+    host = sys.argv[1]
+    api_key = sys.argv[2]
+    metric = sys.argv[3]
     
-    # Option 3: Read from config file
-    # with open('config.json') as f:
-    #     config = json.load(f)
-    #     api = MinerAPI(api_key=config['api_key'])
+    monitor = MinerMonitor(host, api_key)
+    result = monitor.get_metric(metric)
     
-    # Check authentication
-    print("Checking authentication...")
-    auth_status = api.check_auth()
-    print(f"Auth Status: {json.dumps(auth_status, indent=2)}\n")
-    
-    # Get summary data
-    print("Fetching miner summary...")
-    summary_data = api.get_summary()
-    
-    # Parse and display statistics
-    if summary_data:
-        api.parse_miner_stats(summary_data)
-        
-        # Optional: Save to file
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"miner_stats_{timestamp}.json"
-        with open(filename, 'w') as f:
-            json.dump(summary_data, f, indent=2)
-        print(f"\n💾 Data saved to: {filename}")
-    else:
-        print("Failed to retrieve miner data")
+    print(result)
 
 if __name__ == "__main__":
     main()
